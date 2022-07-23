@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"greenhandatsjtu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.11.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="IntroductionCasbin-rs is an authorization library that supports access control models like ACL, RBAC, ABAC written in Rust. Poem is a full-featured and easy-to-use web framework with the Rust programm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tutorial on How to Use Poem-casbin">
+<meta property="og:url" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/index.html">
+<meta property="og:site_name" content="Nil&#39;s Blog">
+<meta property="og:description" content="IntroductionCasbin-rs is an authorization library that supports access control models like ACL, RBAC, ABAC written in Rust. Poem is a full-featured and easy-to-use web framework with the Rust programm">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled.png">
+<meta property="og:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled_1.png">
+<meta property="og:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled_2.png">
+<meta property="og:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled_3.png">
+<meta property="og:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled_4.png">
+<meta property="og:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled_5.png">
+<meta property="article:published_time" content="2022-07-23T09:02:10.000Z">
+<meta property="article:modified_time" content="2022-07-23T09:16:41.353Z">
+<meta property="article:author" content="Nil">
+<meta property="article:tag" content="GSoC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/Untitled.png">
+
+
+<link rel="canonical" href="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/","path":"2022/07/23/GSoC-poem-casbin/","title":"Tutorial on How to Use Poem-casbin"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Tutorial on How to Use Poem-casbin | Nil's Blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Nil's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">This is subtitle</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-a-hello-world-service-with-poem"><span class="nav-number">2.</span> <span class="nav-text">Write a hello-world service with poem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Integrate-with-basic-auth-middleware"><span class="nav-number">3.</span> <span class="nav-text">Integrate with basic auth middleware</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Integrate-with-poem-casbin-middleware"><span class="nav-number">4.</span> <span class="nav-text">Integrate with poem-casbin middleware</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summary"><span class="nav-number">5.</span> <span class="nav-text">Summary</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Nil"
+      src="https://avatars.githubusercontent.com/u/40566803">
+  <p class="site-author-name" itemprop="name">Nil</p>
+  <div class="site-description" itemprop="description">This is description</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/greenhandatsjtu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;greenhandatsjtu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/greenhandatsjtu" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/40566803">
+      <meta itemprop="name" content="Nil">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nil's Blog">
+      <meta itemprop="description" content="This is description">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Tutorial on How to Use Poem-casbin | Nil's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Tutorial on How to Use Poem-casbin
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-07-23 17:02:10 / 修改时间：17:16:41" itemprop="dateCreated datePublished" datetime="2022-07-23T17:02:10+08:00">2022-07-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><a target="_blank" rel="noopener" href="https://github.com/casbin/casbin-rs">Casbin-rs</a> is an authorization library that supports access control models like ACL, RBAC, ABAC written in Rust.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/poem-web/poem">Poem</a> is a full-featured and easy-to-use web framework with the Rust programming language.</p>
+<p>In this tutorial, we will integrate poem with casbin-rs using <a target="_blank" rel="noopener" href="https://github.com/casbin-rs/poem-casbin">poem-casbin</a>.</p>
+<h2 id="Write-a-hello-world-service-with-poem"><a href="#Write-a-hello-world-service-with-poem" class="headerlink" title="Write a hello-world service with poem"></a>Write a hello-world service with poem</h2><p>First, create a cargo crate, then add following dependencies in <code>Cargo.toml</code>:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tokio</span> = &#123; version = <span class="string">&quot;1.20.0&quot;</span>, features = [<span class="string">&quot;rt-multi-thread&quot;</span>, <span class="string">&quot;macros&quot;</span>] &#125;</span><br><span class="line"><span class="attr">poem</span> = <span class="string">&quot;1.3.35&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Add following code to <code>main.rs</code></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> poem::&#123;get, handler, listener::TcpListener, web::Path, Route, Server&#125;;</span><br><span class="line"><span class="keyword">use</span> std::env;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">pen1</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    String::<span class="title function_ invoke__">from</span>(<span class="string">&quot;I&#x27;m pen 1&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">pen2</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    String::<span class="title function_ invoke__">from</span>(<span class="string">&quot;I&#x27;m pen 2&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">book</span>(<span class="title function_ invoke__">Path</span>(id): Path&lt;<span class="type">String</span>&gt;) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;I&#x27;m book &#123;&#125;&quot;</span>, id)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;(), std::io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> env::<span class="title function_ invoke__">var_os</span>(<span class="string">&quot;RUST_LOG&quot;</span>).<span class="title function_ invoke__">is_none</span>() &#123;</span><br><span class="line">        env::<span class="title function_ invoke__">set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;poem=debug&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">app</span> = Route::<span class="title function_ invoke__">new</span>()</span><br><span class="line">        .<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/1&quot;</span>, <span class="title function_ invoke__">get</span>(pen1))</span><br><span class="line">        .<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/2&quot;</span>, <span class="title function_ invoke__">get</span>(pen2))</span><br><span class="line">        .<span class="title function_ invoke__">at</span>(<span class="string">&quot;/book/:id&quot;</span>, <span class="title function_ invoke__">get</span>(book));</span><br><span class="line">    Server::<span class="title function_ invoke__">new</span>(TcpListener::<span class="title function_ invoke__">bind</span>(<span class="string">&quot;127.0.0.1:3000&quot;</span>))</span><br><span class="line">        .<span class="title function_ invoke__">name</span>(<span class="string">&quot;poem-casbin-demo&quot;</span>)</span><br><span class="line">        .<span class="title function_ invoke__">run</span>(app)</span><br><span class="line">        .<span class="keyword">await</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>There are 3 endpoints, <code>/pen/1</code>, <code>/pen/2</code>, and <code>/book/:id</code>. It’s quite simple, right? Let’s run our service, enter <code>cargo run</code> and our service will be available at <code>127.0.0.1:3000</code>.</p>
+<p>Let’s use <code>curl</code> to test our service:</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled.png"></p>
+<h2 id="Integrate-with-basic-auth-middleware"><a href="#Integrate-with-basic-auth-middleware" class="headerlink" title="Integrate with basic auth middleware"></a>Integrate with basic auth middleware</h2><p>Note that casbin-poem is an authorization middleware, not an authentication middleware. Casbin only takes charge of permission control, so we need to implement an authentication middleware to identify user.</p>
+<p>In this part, we will inegrate our service with a basic auth middleware.</p>
+<p>To start with, add following dependency to <code>Cargo.toml</code>:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">poem-casbin-auth</span> = &#123; git = <span class="string">&quot;https://github.com/casbin-rs/poem-casbin.git&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Then create a file named <code>auth.rs</code> and add following code to it:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> poem::&#123;</span><br><span class="line">    http::StatusCode,</span><br><span class="line">    web::&#123;</span><br><span class="line">        headers,</span><br><span class="line">        headers::&#123;authorization::Basic, HeaderMapExt&#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    Endpoint, Error, Middleware, Request, <span class="type">Result</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::CasbinVals;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BasicAuth</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;E: Endpoint&gt; Middleware&lt;E&gt; <span class="keyword">for</span> <span class="title class_">BasicAuth</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = BasicAuthEndpoint&lt;E&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">transform</span>(&amp;<span class="keyword">self</span>, ep: E) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span>::Output &#123;</span><br><span class="line">        BasicAuthEndpoint &#123; ep &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BasicAuthEndpoint</span>&lt;E&gt; &#123;</span><br><span class="line">    ep: E,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[poem::async_trait]</span></span><br><span class="line"><span class="keyword">impl</span>&lt;E: Endpoint&gt; Endpoint <span class="keyword">for</span> <span class="title class_">BasicAuthEndpoint</span>&lt;E&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = E::Output;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">call</span>(&amp;<span class="keyword">self</span>, <span class="keyword">mut</span> req: Request) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="keyword">Self</span>::Output&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(auth) = req.<span class="title function_ invoke__">headers</span>().typed_get::&lt;headers::Authorization&lt;Basic&gt;&gt;() &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">vals</span> = CasbinVals &#123;</span><br><span class="line">                subject: String::<span class="title function_ invoke__">from</span>(auth.<span class="title function_ invoke__">username</span>()),</span><br><span class="line">                domain: <span class="literal">None</span>,</span><br><span class="line">            &#125;;</span><br><span class="line">            req.<span class="title function_ invoke__">extensions_mut</span>().<span class="title function_ invoke__">insert</span>(vals);</span><br><span class="line">            <span class="keyword">self</span>.ep.<span class="title function_ invoke__">call</span>(req).<span class="keyword">await</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="title function_ invoke__">Err</span>(Error::<span class="title function_ invoke__">from_status</span>(StatusCode::UNAUTHORIZED))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>In this mod, we implement a basic auth middleware, for simplicity, here we don’t verify username and password, instead we just insert <code>CasbinVals</code> with provided username into <code>Extension</code>,so that poem-casbin middleware can extract identity information. If the request doesn’t have basic auth, then the middleware will return 401 Unauthorized.</p>
+<p>Then let’s integrate our service with basic auth middleware. Firstly, add following code to <code>main.rs</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> auth;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::CasbinVals;</span><br></pre></td></tr></table></figure>
+
+<p>Then add a new handler to confirm that our auth middleware insert identity information correctly:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">user</span>(data: Data&lt;&amp;CasbinVals&gt;) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;Hello, &#123;&#125;&quot;</span>, &amp;data.subject)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Lastly, rewrite <code>main</code> function to add an endpoint <code>/user</code> and wrap all endpoints with basic auth middleware, now it looks like:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">app</span> = Route::<span class="title function_ invoke__">new</span>()</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/1&quot;</span>, <span class="title function_ invoke__">get</span>(pen1))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/2&quot;</span>, <span class="title function_ invoke__">get</span>(pen2))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/book/:id&quot;</span>, <span class="title function_ invoke__">get</span>(book))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/user&quot;</span>, <span class="title function_ invoke__">get</span>(user))</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(casbin_middleware)</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(auth::BasicAuth);</span><br></pre></td></tr></table></figure>
+
+<p>Now, let’s use <code>curl</code> again to test our service.</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_1.png"></p>
+<p>Now as you can see, if we don’t provide basic auth when accessing our service, we will get 401 Unauthorized. Our request is aborted by basic auth middleware. Let’s send requests with basic auth:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -u alice:123 localhost:3000/book/1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_2.png"></p>
+<p>Now we can get response as normal. It seems that our basic auth middleware works well.</p>
+<h2 id="Integrate-with-poem-casbin-middleware"><a href="#Integrate-with-poem-casbin-middleware" class="headerlink" title="Integrate with poem-casbin middleware"></a>Integrate with poem-casbin middleware</h2><p>In the last part, we will integrate our service with poem-casbin middleware.</p>
+<p>First, we need to provide conf and policy files under the project root directory.</p>
+<p><code>rbac_with_pattern_model.conf</code> looks like:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[request_definition]</span><br><span class="line">r = sub, obj, act</span><br><span class="line"></span><br><span class="line">[policy_definition]</span><br><span class="line">p = sub, obj, act</span><br><span class="line"></span><br><span class="line">[role_definition]</span><br><span class="line">g = _, _</span><br><span class="line">g2 = _, _</span><br><span class="line"></span><br><span class="line">[policy_effect]</span><br><span class="line">e = some(where (p.eft == allow))</span><br><span class="line"></span><br><span class="line">[matchers]</span><br><span class="line">m = g(r.sub, p.sub) &amp;&amp; g2(r.obj, p.obj) &amp;&amp; regexMatch(r.act, p.act)</span><br></pre></td></tr></table></figure>
+
+<p><code>rbac_with_pattern_policy.csv</code> looks like:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">p, alice, /pen/1, GET</span><br><span class="line">p, book_admin, book_group, GET</span><br><span class="line">p, pen_admin, pen_group, GET</span><br><span class="line">,,,</span><br><span class="line">g, alice, book_admin,</span><br><span class="line">g, bob, pen_admin,</span><br><span class="line">g2, /book/:id, book_group,</span><br><span class="line">g2, /pen/:id, pen_group,</span><br></pre></td></tr></table></figure>
+
+<p>These policy means:</p>
+<ul>
+<li>For alice:<ul>
+<li>can access <code>/pen/1</code></li>
+<li>is <code>book_admin</code>, thus can access <code>/book/:id</code></li>
+</ul>
+</li>
+<li>For bob:<ul>
+<li>is <code>pen_admin</code>, thus can access <code>/pen/:id</code></li>
+</ul>
+</li>
+</ul>
+<p>Now let’s focus on <code>main.rs</code>, first add following code to it:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> poem_casbin_auth::casbin::function_map::key_match2;</span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::casbin::&#123;CoreApi, DefaultModel, FileAdapter&#125;;</span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::&#123;CasbinService, CasbinVals&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Then rewrite <code>main</code> function to wrap our service with poem-casbin middleware:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">m</span> = DefaultModel::<span class="title function_ invoke__">from_file</span>(<span class="string">&quot;rbac_with_pattern_model.conf&quot;</span>)</span><br><span class="line">		.<span class="keyword">await</span></span><br><span class="line">		.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"><span class="keyword">let</span> <span class="variable">a</span> = FileAdapter::<span class="title function_ invoke__">new</span>(<span class="string">&quot;rbac_with_pattern_policy.csv&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">casbin_middleware</span> = CasbinService::<span class="title function_ invoke__">new</span>(m, a).<span class="keyword">await</span>.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">casbin_middleware</span><br><span class="line">		.<span class="title function_ invoke__">write</span>()</span><br><span class="line">		.<span class="keyword">await</span></span><br><span class="line">		.<span class="title function_ invoke__">get_role_manager</span>()</span><br><span class="line">		.<span class="title function_ invoke__">write</span>()</span><br><span class="line">		.<span class="title function_ invoke__">matching_fn</span>(<span class="title function_ invoke__">Some</span>(key_match2), <span class="literal">None</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">app</span> = Route::<span class="title function_ invoke__">new</span>()</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/1&quot;</span>, <span class="title function_ invoke__">get</span>(pen1))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/2&quot;</span>, <span class="title function_ invoke__">get</span>(pen2))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/book/:id&quot;</span>, <span class="title function_ invoke__">get</span>(book))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/user&quot;</span>, <span class="title function_ invoke__">get</span>(user))</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(casbin_middleware)</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(auth::BasicAuth);</span><br></pre></td></tr></table></figure>
+
+<p>Here we first read conf and policy, then create <code>casbin_middleware</code> and change <code>matching_fn</code> to <code>key_match</code> to match wildcard path (like <code>/:id</code>). Lastly, we wrap all endpoints with <code>casbin_middleware</code>.</p>
+<p>That’s all the work we have to do to integrate our service with poem-casbin middleware, quite simple, right?</p>
+<p>Again, let’s use <code>curl</code> to test our service:</p>
+<p>If alice wants to access <code>/pen/2</code>, she will get 403 Forbidden, because she is not allowed to access this endpoint.</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_3.png"></p>
+<p>Likewise, bob can’t access <code>/book/2</code>:</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_4.png"></p>
+<p>Everything is fine when both users send requests to the endpoints that they can access:</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_5.png"></p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>In this tutorial, we write a hello-world web service using poem, then integrate it with basic auth and casbin-poem middleware. It’s a quite simple project with only ~100 LOC, its code can be found at this repository: <a target="_blank" rel="noopener" href="https://github.com/greenhandatsjtu/poem-casbin-demo">https://github.com/greenhandatsjtu/poem-casbin-demo</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GSoC/" rel="tag"># GSoC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/03/GSoC-Week3/" rel="prev" title="GSoC Week3">
+                  <i class="fa fa-chevron-left"></i> GSoC Week3
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Nil</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

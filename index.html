@@ -130,7 +130,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -187,6 +187,148 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://greenhandatsjtu.github.io/2022/07/23/GSoC-poem-casbin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars.githubusercontent.com/u/40566803">
+      <meta itemprop="name" content="Nil">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Nil's Blog">
+      <meta itemprop="description" content="This is description">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Nil's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/07/23/GSoC-poem-casbin/" class="post-title-link" itemprop="url">Tutorial on How to Use Poem-casbin</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2022-07-23 17:02:10 / 修改时间：17:16:41" itemprop="dateCreated datePublished" datetime="2022-07-23T17:02:10+08:00">2022-07-23</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><a target="_blank" rel="noopener" href="https://github.com/casbin/casbin-rs">Casbin-rs</a> is an authorization library that supports access control models like ACL, RBAC, ABAC written in Rust.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/poem-web/poem">Poem</a> is a full-featured and easy-to-use web framework with the Rust programming language.</p>
+<p>In this tutorial, we will integrate poem with casbin-rs using <a target="_blank" rel="noopener" href="https://github.com/casbin-rs/poem-casbin">poem-casbin</a>.</p>
+<h2 id="Write-a-hello-world-service-with-poem"><a href="#Write-a-hello-world-service-with-poem" class="headerlink" title="Write a hello-world service with poem"></a>Write a hello-world service with poem</h2><p>First, create a cargo crate, then add following dependencies in <code>Cargo.toml</code>:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">tokio</span> = &#123; version = <span class="string">&quot;1.20.0&quot;</span>, features = [<span class="string">&quot;rt-multi-thread&quot;</span>, <span class="string">&quot;macros&quot;</span>] &#125;</span><br><span class="line"><span class="attr">poem</span> = <span class="string">&quot;1.3.35&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Add following code to <code>main.rs</code></p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> poem::&#123;get, handler, listener::TcpListener, web::Path, Route, Server&#125;;</span><br><span class="line"><span class="keyword">use</span> std::env;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">pen1</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    String::<span class="title function_ invoke__">from</span>(<span class="string">&quot;I&#x27;m pen 1&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">pen2</span>() <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    String::<span class="title function_ invoke__">from</span>(<span class="string">&quot;I&#x27;m pen 2&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">book</span>(<span class="title function_ invoke__">Path</span>(id): Path&lt;<span class="type">String</span>&gt;) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;I&#x27;m book &#123;&#125;&quot;</span>, id)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[tokio::main]</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">main</span>() <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;(), std::io::Error&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> env::<span class="title function_ invoke__">var_os</span>(<span class="string">&quot;RUST_LOG&quot;</span>).<span class="title function_ invoke__">is_none</span>() &#123;</span><br><span class="line">        env::<span class="title function_ invoke__">set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;poem=debug&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">app</span> = Route::<span class="title function_ invoke__">new</span>()</span><br><span class="line">        .<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/1&quot;</span>, <span class="title function_ invoke__">get</span>(pen1))</span><br><span class="line">        .<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/2&quot;</span>, <span class="title function_ invoke__">get</span>(pen2))</span><br><span class="line">        .<span class="title function_ invoke__">at</span>(<span class="string">&quot;/book/:id&quot;</span>, <span class="title function_ invoke__">get</span>(book));</span><br><span class="line">    Server::<span class="title function_ invoke__">new</span>(TcpListener::<span class="title function_ invoke__">bind</span>(<span class="string">&quot;127.0.0.1:3000&quot;</span>))</span><br><span class="line">        .<span class="title function_ invoke__">name</span>(<span class="string">&quot;poem-casbin-demo&quot;</span>)</span><br><span class="line">        .<span class="title function_ invoke__">run</span>(app)</span><br><span class="line">        .<span class="keyword">await</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>There are 3 endpoints, <code>/pen/1</code>, <code>/pen/2</code>, and <code>/book/:id</code>. It’s quite simple, right? Let’s run our service, enter <code>cargo run</code> and our service will be available at <code>127.0.0.1:3000</code>.</p>
+<p>Let’s use <code>curl</code> to test our service:</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled.png"></p>
+<h2 id="Integrate-with-basic-auth-middleware"><a href="#Integrate-with-basic-auth-middleware" class="headerlink" title="Integrate with basic auth middleware"></a>Integrate with basic auth middleware</h2><p>Note that casbin-poem is an authorization middleware, not an authentication middleware. Casbin only takes charge of permission control, so we need to implement an authentication middleware to identify user.</p>
+<p>In this part, we will inegrate our service with a basic auth middleware.</p>
+<p>To start with, add following dependency to <code>Cargo.toml</code>:</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">poem-casbin-auth</span> = &#123; git = <span class="string">&quot;https://github.com/casbin-rs/poem-casbin.git&quot;</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Then create a file named <code>auth.rs</code> and add following code to it:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> poem::&#123;</span><br><span class="line">    http::StatusCode,</span><br><span class="line">    web::&#123;</span><br><span class="line">        headers,</span><br><span class="line">        headers::&#123;authorization::Basic, HeaderMapExt&#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    Endpoint, Error, Middleware, Request, <span class="type">Result</span>,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::CasbinVals;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BasicAuth</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;E: Endpoint&gt; Middleware&lt;E&gt; <span class="keyword">for</span> <span class="title class_">BasicAuth</span> &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = BasicAuthEndpoint&lt;E&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">fn</span> <span class="title function_">transform</span>(&amp;<span class="keyword">self</span>, ep: E) <span class="punctuation">-&gt;</span> <span class="keyword">Self</span>::Output &#123;</span><br><span class="line">        BasicAuthEndpoint &#123; ep &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">struct</span> <span class="title class_">BasicAuthEndpoint</span>&lt;E&gt; &#123;</span><br><span class="line">    ep: E,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[poem::async_trait]</span></span><br><span class="line"><span class="keyword">impl</span>&lt;E: Endpoint&gt; Endpoint <span class="keyword">for</span> <span class="title class_">BasicAuthEndpoint</span>&lt;E&gt; &#123;</span><br><span class="line">    <span class="keyword">type</span> <span class="title class_">Output</span> = E::Output;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">fn</span> <span class="title function_">call</span>(&amp;<span class="keyword">self</span>, <span class="keyword">mut</span> req: Request) <span class="punctuation">-&gt;</span> <span class="type">Result</span>&lt;<span class="keyword">Self</span>::Output&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="variable">Some</span>(auth) = req.<span class="title function_ invoke__">headers</span>().typed_get::&lt;headers::Authorization&lt;Basic&gt;&gt;() &#123;</span><br><span class="line">            <span class="keyword">let</span> <span class="variable">vals</span> = CasbinVals &#123;</span><br><span class="line">                subject: String::<span class="title function_ invoke__">from</span>(auth.<span class="title function_ invoke__">username</span>()),</span><br><span class="line">                domain: <span class="literal">None</span>,</span><br><span class="line">            &#125;;</span><br><span class="line">            req.<span class="title function_ invoke__">extensions_mut</span>().<span class="title function_ invoke__">insert</span>(vals);</span><br><span class="line">            <span class="keyword">self</span>.ep.<span class="title function_ invoke__">call</span>(req).<span class="keyword">await</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="title function_ invoke__">Err</span>(Error::<span class="title function_ invoke__">from_status</span>(StatusCode::UNAUTHORIZED))</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>In this mod, we implement a basic auth middleware, for simplicity, here we don’t verify username and password, instead we just insert <code>CasbinVals</code> with provided username into <code>Extension</code>,so that poem-casbin middleware can extract identity information. If the request doesn’t have basic auth, then the middleware will return 401 Unauthorized.</p>
+<p>Then let’s integrate our service with basic auth middleware. Firstly, add following code to <code>main.rs</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mod</span> auth;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::CasbinVals;</span><br></pre></td></tr></table></figure>
+
+<p>Then add a new handler to confirm that our auth middleware insert identity information correctly:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[handler]</span></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">user</span>(data: Data&lt;&amp;CasbinVals&gt;) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="built_in">format!</span>(<span class="string">&quot;Hello, &#123;&#125;&quot;</span>, &amp;data.subject)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Lastly, rewrite <code>main</code> function to add an endpoint <code>/user</code> and wrap all endpoints with basic auth middleware, now it looks like:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">app</span> = Route::<span class="title function_ invoke__">new</span>()</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/1&quot;</span>, <span class="title function_ invoke__">get</span>(pen1))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/2&quot;</span>, <span class="title function_ invoke__">get</span>(pen2))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/book/:id&quot;</span>, <span class="title function_ invoke__">get</span>(book))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/user&quot;</span>, <span class="title function_ invoke__">get</span>(user))</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(casbin_middleware)</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(auth::BasicAuth);</span><br></pre></td></tr></table></figure>
+
+<p>Now, let’s use <code>curl</code> again to test our service.</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_1.png"></p>
+<p>Now as you can see, if we don’t provide basic auth when accessing our service, we will get 401 Unauthorized. Our request is aborted by basic auth middleware. Let’s send requests with basic auth:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -u alice:123 localhost:3000/book/1</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_2.png"></p>
+<p>Now we can get response as normal. It seems that our basic auth middleware works well.</p>
+<h2 id="Integrate-with-poem-casbin-middleware"><a href="#Integrate-with-poem-casbin-middleware" class="headerlink" title="Integrate with poem-casbin middleware"></a>Integrate with poem-casbin middleware</h2><p>In the last part, we will integrate our service with poem-casbin middleware.</p>
+<p>First, we need to provide conf and policy files under the project root directory.</p>
+<p><code>rbac_with_pattern_model.conf</code> looks like:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[request_definition]</span><br><span class="line">r = sub, obj, act</span><br><span class="line"></span><br><span class="line">[policy_definition]</span><br><span class="line">p = sub, obj, act</span><br><span class="line"></span><br><span class="line">[role_definition]</span><br><span class="line">g = _, _</span><br><span class="line">g2 = _, _</span><br><span class="line"></span><br><span class="line">[policy_effect]</span><br><span class="line">e = some(where (p.eft == allow))</span><br><span class="line"></span><br><span class="line">[matchers]</span><br><span class="line">m = g(r.sub, p.sub) &amp;&amp; g2(r.obj, p.obj) &amp;&amp; regexMatch(r.act, p.act)</span><br></pre></td></tr></table></figure>
+
+<p><code>rbac_with_pattern_policy.csv</code> looks like:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">p, alice, /pen/1, GET</span><br><span class="line">p, book_admin, book_group, GET</span><br><span class="line">p, pen_admin, pen_group, GET</span><br><span class="line">,,,</span><br><span class="line">g, alice, book_admin,</span><br><span class="line">g, bob, pen_admin,</span><br><span class="line">g2, /book/:id, book_group,</span><br><span class="line">g2, /pen/:id, pen_group,</span><br></pre></td></tr></table></figure>
+
+<p>These policy means:</p>
+<ul>
+<li>For alice:<ul>
+<li>can access <code>/pen/1</code></li>
+<li>is <code>book_admin</code>, thus can access <code>/book/:id</code></li>
+</ul>
+</li>
+<li>For bob:<ul>
+<li>is <code>pen_admin</code>, thus can access <code>/pen/:id</code></li>
+</ul>
+</li>
+</ul>
+<p>Now let’s focus on <code>main.rs</code>, first add following code to it:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> poem_casbin_auth::casbin::function_map::key_match2;</span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::casbin::&#123;CoreApi, DefaultModel, FileAdapter&#125;;</span><br><span class="line"><span class="keyword">use</span> poem_casbin_auth::&#123;CasbinService, CasbinVals&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Then rewrite <code>main</code> function to wrap our service with poem-casbin middleware:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="variable">m</span> = DefaultModel::<span class="title function_ invoke__">from_file</span>(<span class="string">&quot;rbac_with_pattern_model.conf&quot;</span>)</span><br><span class="line">		.<span class="keyword">await</span></span><br><span class="line">		.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"><span class="keyword">let</span> <span class="variable">a</span> = FileAdapter::<span class="title function_ invoke__">new</span>(<span class="string">&quot;rbac_with_pattern_policy.csv&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">casbin_middleware</span> = CasbinService::<span class="title function_ invoke__">new</span>(m, a).<span class="keyword">await</span>.<span class="title function_ invoke__">unwrap</span>();</span><br><span class="line"></span><br><span class="line">casbin_middleware</span><br><span class="line">		.<span class="title function_ invoke__">write</span>()</span><br><span class="line">		.<span class="keyword">await</span></span><br><span class="line">		.<span class="title function_ invoke__">get_role_manager</span>()</span><br><span class="line">		.<span class="title function_ invoke__">write</span>()</span><br><span class="line">		.<span class="title function_ invoke__">matching_fn</span>(<span class="title function_ invoke__">Some</span>(key_match2), <span class="literal">None</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> <span class="variable">app</span> = Route::<span class="title function_ invoke__">new</span>()</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/1&quot;</span>, <span class="title function_ invoke__">get</span>(pen1))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/pen/2&quot;</span>, <span class="title function_ invoke__">get</span>(pen2))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/book/:id&quot;</span>, <span class="title function_ invoke__">get</span>(book))</span><br><span class="line">		.<span class="title function_ invoke__">at</span>(<span class="string">&quot;/user&quot;</span>, <span class="title function_ invoke__">get</span>(user))</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(casbin_middleware)</span><br><span class="line">		.<span class="title function_ invoke__">with</span>(auth::BasicAuth);</span><br></pre></td></tr></table></figure>
+
+<p>Here we first read conf and policy, then create <code>casbin_middleware</code> and change <code>matching_fn</code> to <code>key_match</code> to match wildcard path (like <code>/:id</code>). Lastly, we wrap all endpoints with <code>casbin_middleware</code>.</p>
+<p>That’s all the work we have to do to integrate our service with poem-casbin middleware, quite simple, right?</p>
+<p>Again, let’s use <code>curl</code> to test our service:</p>
+<p>If alice wants to access <code>/pen/2</code>, she will get 403 Forbidden, because she is not allowed to access this endpoint.</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_3.png"></p>
+<p>Likewise, bob can’t access <code>/book/2</code>:</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_4.png"></p>
+<p>Everything is fine when both users send requests to the endpoints that they can access:</p>
+<p><img src="/2022/07/23/GSoC-poem-casbin/Untitled_5.png"></p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>In this tutorial, we write a hello-world web service using poem, then integrate it with basic auth and casbin-poem middleware. It’s a quite simple project with only ~100 LOC, its code can be found at this repository: <a target="_blank" rel="noopener" href="https://github.com/greenhandatsjtu/poem-casbin-demo">https://github.com/greenhandatsjtu/poem-casbin-demo</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://greenhandatsjtu.github.io/2022/07/03/GSoC-Week3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -215,9 +357,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2022-07-03 18:21:51 / 修改时间：18:38:04" itemprop="dateCreated datePublished" datetime="2022-07-03T18:21:51+08:00">2022-07-03</time>
+      <time title="创建时间：2022-07-03 18:21:51" itemprop="dateCreated datePublished" datetime="2022-07-03T18:21:51+08:00">2022-07-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2022-07-23 17:16:41" itemprop="dateModified" datetime="2022-07-23T17:16:41+08:00">2022-07-23</time>
     </span>
 
   
@@ -357,7 +505,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-03 18:38:04" itemprop="dateModified" datetime="2022-07-03T18:38:04+08:00">2022-07-03</time>
+      <time title="修改时间：2022-07-23 17:16:41" itemprop="dateModified" datetime="2022-07-23T17:16:41+08:00">2022-07-23</time>
     </span>
 
   
@@ -544,7 +692,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-03 18:38:04" itemprop="dateModified" datetime="2022-07-03T18:38:04+08:00">2022-07-03</time>
+      <time title="修改时间：2022-07-23 17:16:41" itemprop="dateModified" datetime="2022-07-23T17:16:41+08:00">2022-07-23</time>
     </span>
 
   
@@ -786,7 +934,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2022-07-03 18:38:04" itemprop="dateModified" datetime="2022-07-03T18:38:04+08:00">2022-07-03</time>
+      <time title="修改时间：2022-07-23 17:16:41" itemprop="dateModified" datetime="2022-07-23T17:16:41+08:00">2022-07-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
